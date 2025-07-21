@@ -4,7 +4,7 @@ function App() {
     return (
         <>
             <header className='p-4 border-b border-gray-300'>🎬 Movis</header>
-            <main>
+            <main className='p-4'>
                 <Outlet/>
             </main>
         </>
