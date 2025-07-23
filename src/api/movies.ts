@@ -1,21 +1,6 @@
 import {useQuery} from "@tanstack/react-query";
-
-export type Movie = {
-    id: number
-    title: string
-    vote_average: number
-    genre_ids: number[]
-    poster_path: string | null
-    overview: string
-    release_date: string
-}
-
-type MoviesResponse = {
-    results: Movie[]
-    page: number
-    total_results: number
-    total_pages: number
-}
+import type {Movie} from "@/types/movie.ts";
+import {withApiKey} from "@/api/config.ts";
 
 export const useMovies = () => useQuery({
     queryKey: ['movies'],
@@ -24,16 +9,43 @@ export const useMovies = () => useQuery({
     retry: 2,
 });
 
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-const BASE_URL = 'https://api.themoviedb.org/3';
-
 async function fetchMovies(): Promise<Movie[]> {
-    const url = `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US`;
+    const movies = await fetchNowPlayingMovies();
+
+    return await Promise.all(
+        movies.map(async (movie) => {
+            const {runtime, genres} = await fetchMovieDetails(movie.id);
+
+            return {
+                ...movie,
+                runtime,
+                genres
+            }
+        })
+    );
+}
+
+async function fetchNowPlayingMovies(): Promise<Omit<Movie, 'runtime'>[]> {
+    const url = withApiKey('/movie/now_playing');
     const response = await fetch(url);
 
     if (!response.ok) throw new Error('Failed to fetch movies');
 
-    const data: MoviesResponse = await response.json();
+    const data = await response.json();
 
-    return data.results
+    return data.results;
+}
+
+async function fetchMovieDetails(movieId: number): Promise<Pick<Movie, 'runtime' | 'genres'>> {
+    const url = withApiKey(`/movie/${movieId}`);
+    const response = await fetch(url);
+
+    if (!response.ok) throw new Error('Failed to fetch movie details');
+
+    const data = await response.json();
+
+    return {
+        runtime: data.runtime,
+        genres: data.genres
+    };
 }
