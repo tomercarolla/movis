@@ -15,9 +15,11 @@ async function fetchMovies(): Promise<Movie[]> {
     return await Promise.all(
         movies.map(async (movie) => {
             const {runtime, genres} = await fetchMovieDetails(movie.id);
+            const theaterId = `theater-${movie.id}`;
 
             return {
                 ...movie,
+                theaterId,
                 runtime,
                 genres
             }
