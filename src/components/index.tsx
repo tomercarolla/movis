@@ -1,2 +1,2 @@
 export * from './loader/Loader';
-export * from './select/RatingSelectFilter';
+export * from './select/Select';
