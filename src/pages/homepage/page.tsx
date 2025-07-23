@@ -1,29 +1,61 @@
-import {Loader, RatingFilterSelect, ratingRanges} from "@/components";
+import {Loader} from "@/components";
 import {MovieCard} from "@/pages/homepage/components/MovieCard.tsx";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {useMovies} from "@/api/movies.ts";
-import type { Movie } from "@/types/movie";
+import type {Genre, Movie} from "@/types/movie";
+import {ratingRanges, RatingSelectFilter} from "@/pages/homepage/components/RatingSelectFilter.tsx";
+import {GenresMultiSelectFilter} from "@/pages/homepage/components/GenresMultiSelectFilter.tsx";
+import {AutoComplete} from "@/components/autocomplete/AutoComplete.tsx";
 
 export default function Component() {
     const {data: movies, isLoading, error} = useMovies();
-    const [ratingFilter, setRatingFilter] = useState('all');
-
-    if (isLoading) return <Loader/>;
-    if (error) return <div>Error loading movies</div>;
+    const [ratingFilter, setRatingFilter] = useState<string>('all');
+    const [genresFilter, setGenresFilter] = useState<Genre[]>([]);
+    const [searchValue, setSearchValue] = useState<string>("");
+    const [_, setSelectedValue] = useState<string>("");
 
     const filterByRating = (movie: Movie, ratingFilter: string) =>
         ratingRanges[ratingFilter]?.(movie.vote_average) ?? true;
 
+    const filterByGenres = (movie: Movie, selectedGenres: Genre[]) => {
+        if (selectedGenres.length === 0) return true;
+
+        return movie.genres.some(genre => selectedGenres.some(selected => selected.id === genre.id));
+    }
+    const searchMovie = (movie: Movie, searchValue: string) => {
+        if (!searchValue) return true;
+
+        return movie.title.toLowerCase().includes(searchValue.toLowerCase());
+    }
+
     const filteredMovies = movies?.filter((movie) =>
-        filterByRating(movie, ratingFilter)
+        searchMovie(movie, searchValue) && filterByRating(movie, ratingFilter) && filterByGenres(movie, genresFilter)
     );
 
-    console.log('filteredMovies ', filteredMovies)
+    const moviesTitles = useMemo(() => {
+        return filteredMovies?.map(movie => ({
+            id: movie.id.toString(),
+            label: movie.title,
+            value: movie.title,
+        })) ?? [];
+    }, [filteredMovies]);
+
+    if (isLoading) return <Loader/>;
+    if (error) return <div>Error loading movies</div>;
 
     return (
         <section className='flex flex-col gap-6'>
-            <section className='flex gap-7 items-center justify-center'>
-                <RatingFilterSelect onChange={setRatingFilter} />
+            <section className='flex gap-7 items-center justify-center flex-wrap'>
+                <AutoComplete
+                    onSelectedValueChange={setSelectedValue}
+                    searchValue={searchValue}
+                    onSearchValueChange={setSearchValue}
+                    items={moviesTitles ?? []}
+                    isLoading={isLoading}
+                    emptyMessage="No movies found."
+                />
+                <GenresMultiSelectFilter setSelectedGenres={setGenresFilter} selectedGenres={genresFilter} />
+                <RatingSelectFilter setRatingFilter={setRatingFilter} />
             </section>
 
             {filteredMovies?.length === 0 ? (
