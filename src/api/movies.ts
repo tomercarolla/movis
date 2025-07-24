@@ -14,12 +14,18 @@ async function fetchMovies(): Promise<Movie[]> {
 
     return await Promise.all(
         movies.map(async (movie) => {
-            const {runtime, genres} = await fetchMovieDetails(movie.id);
-            const theaterId = `theater-${movie.id}`;
+            const {runtime, genres} = await getMovieDetailsById(movie.id);
+
+            // Create 1-3 theaters per movie
+            const theaterCount = 1 + Math.floor(Math.random() * 3);
+            const theaters = Array.from({length: theaterCount}, (_, i) => ({
+                id: `theater-${movie.id}-${i + 1}`,
+                name: `Theater ${i + 1}`,
+            }));
 
             return {
                 ...movie,
-                theaterId,
+                theaters,
                 runtime,
                 genres
             }
@@ -27,7 +33,7 @@ async function fetchMovies(): Promise<Movie[]> {
     );
 }
 
-async function fetchNowPlayingMovies(): Promise<Omit<Movie, 'runtime'>[]> {
+async function fetchNowPlayingMovies(): Promise<Omit<Movie, 'runtime' | 'genres' | 'theaters'>[]> {
     const url = withApiKey('/movie/now_playing');
     const response = await fetch(url);
 
@@ -38,7 +44,7 @@ async function fetchNowPlayingMovies(): Promise<Omit<Movie, 'runtime'>[]> {
     return data.results;
 }
 
-async function fetchMovieDetails(movieId: number): Promise<Pick<Movie, 'runtime' | 'genres'>> {
+async function getMovieDetailsById(movieId: number): Promise<Pick<Movie, 'runtime' | 'genres'>> {
     const url = withApiKey(`/movie/${movieId}`);
     const response = await fetch(url);
 
