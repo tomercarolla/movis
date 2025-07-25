@@ -39,11 +39,11 @@ export function BookTickets({movie}: BookTicketsProps) {
             );
 
             if (!show) {
-                return { value: time, label: `${time} (Unavailable)`, disabled: true };
+                return {value: time, label: `${time} (Unavailable)`, disabled: true};
             }
 
             const seatKey = buildSeatKey(selectedDate, time, show.theaterId);
-            const { isSoldOut } = useSeatAvailability(seatKey);
+            const {isSoldOut} = useSeatAvailability(seatKey);
 
             return {
                 value: time,
@@ -56,10 +56,12 @@ export function BookTickets({movie}: BookTicketsProps) {
     return (
         <>
             <div className="flex flex-col sm:flex-row gap-4">
-                <Select className='max-w-[180px] w-full' value={selectedDate || ''} options={weekDates} onChange={selectDate} placeholder='Select a day'/>
+                <Select className='max-w-[180px] w-full' value={selectedDate || ''} options={weekDates}
+                        onChange={selectDate} placeholder='Select a day'/>
 
                 {selectedDate && (
-                    <Select className='max-w-[180px] w-full' options={timeOptions} onChange={selectTime} placeholder='Select a hour'/>
+                    <Select className='max-w-[180px] w-full' options={timeOptions} onChange={selectTime}
+                            placeholder='Select a hour'/>
                 )}
             </div>
 
