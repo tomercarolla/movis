@@ -1,21 +1,6 @@
 import {create} from "zustand";
 import {persist} from "zustand/middleware";
 
-const TOTAL_SEATS = 20;
-
-const generateRandomOccupiedSeats = (): number[] => {
-    const seatCount = 4 + Math.floor(Math.random() * 5); // 4-8 seats
-    const occupied = new Set<number>();
-
-    while (occupied.size < seatCount) {
-        const seat = 1 + Math.floor(Math.random() * TOTAL_SEATS);
-
-        occupied.add(seat);
-    }
-
-    return Array.from(occupied);
-}
-
 type SeatKey = string; // format: movieId-date-time-theaterId
 
 type SeatsStore = {
@@ -23,12 +8,12 @@ type SeatsStore = {
     selectedSeats: Record<SeatKey, number[]>;
     soldOutShows: SeatKey[];
 
-    getOccupiedSeats: (key: SeatKey) => number[];
+    setOccupiedSeats: (key: SeatKey, seats: number[]) => void;
     toggleSelectedSeat: (key: SeatKey, seat: number) => void;
+    markShowAsSoldOut: (key: SeatKey) => void;
 
     getSelectedSeats: (key: SeatKey) => number[];
     getSelectedCountByMovie: (movieId: number) => number;
-    markShowAsSoldOut: (key: SeatKey) => void;
 }
 
 export const useSeatsStore = create<SeatsStore>()(
@@ -37,30 +22,14 @@ export const useSeatsStore = create<SeatsStore>()(
             selectedSeats: {},
             soldOutShows: [],
 
-            getOccupiedSeats: (key) => {
-                const isSoldOut = get().soldOutShows.includes(key);
-
-                if (isSoldOut) {
-                    return Array.from({length: TOTAL_SEATS}, (_, i) => i + 1)
-                }
-
-                const existingSeats = get().occupiedSeats[key];
-
-                if (existingSeats) return existingSeats;
-
-                const generateOccupiedSeats = generateRandomOccupiedSeats();
-
+            setOccupiedSeats: (key, seats) => {
                 set((state) => ({
                     occupiedSeats: {
                         ...state.occupiedSeats,
-                        [key]: generateOccupiedSeats
-                    }
-                }))
-
-                return generateOccupiedSeats;
+                        [key]: seats,
+                    },
+                }));
             },
-
-            getSelectedSeats: (key) => get().selectedSeats[key] || [],
 
             toggleSelectedSeat: (key, seat) => {
                 const currentSeat = get().getSelectedSeats(key);
@@ -74,16 +43,18 @@ export const useSeatsStore = create<SeatsStore>()(
                 }))
             },
 
-            getSelectedCountByMovie: (movieId) => {
-                return Object.entries(get().selectedSeats)
-                    .filter(([key]) => key.startsWith(`${movieId}-`))
-                    .reduce((acc, [_, seats]) => acc + seats.length, 0);
-            },
-
             markShowAsSoldOut: (key) => {
                 set((state) => ({
                     soldOutShows: [...new Set([...state.soldOutShows, key])]
                 }))
+            },
+
+            getSelectedSeats: (key) => get().selectedSeats[key] || [],
+
+            getSelectedCountByMovie: (movieId) => {
+                return Object.entries(get().selectedSeats)
+                    .filter(([key]) => key.startsWith(`${movieId}-`))
+                    .reduce((acc, [_, seats]) => acc + seats.length, 0);
             }
         }),
         {

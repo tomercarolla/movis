@@ -20,6 +20,11 @@ export type Theater = {
     name: string
 }
 
+export type WeekdayDate = {
+    label: string;
+    value: string;
+}
+
 export type Showtime = {
     movieId: number;
     theaterId: string;

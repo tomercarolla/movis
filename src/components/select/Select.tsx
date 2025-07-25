@@ -4,22 +4,24 @@ type SelectProps<T> = {
     options: Array<{
         label: string;
         value: T;
+        disabled?: boolean;
     }>;
     onChange: (value: T) => void;
-    defaultValue?: T;
     placeholder?: string;
+    className?: string;
+    value?: T;
 }
 
-export function Select<T extends string>({options, onChange, defaultValue, placeholder = 'Select'}: SelectProps<T>) {
+export function Select<T extends string>({options, onChange, placeholder = 'Select', className, value}: SelectProps<T>) {
     return (
-        <ShadSelect defaultValue={defaultValue?.toString()} onValueChange={onChange}>
-            <SelectTrigger className='hover:bg-input/50'>
+        <ShadSelect value={value} onValueChange={onChange}>
+            <SelectTrigger className={`${className} hover:bg-input/50`}>
                 <SelectValue placeholder={placeholder}/>
             </SelectTrigger>
 
             <SelectContent>
                 {options.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                    <SelectItem disabled={option.disabled} key={option.value} value={option.value}>
                         {option.label}
                     </SelectItem>
                 ))}
