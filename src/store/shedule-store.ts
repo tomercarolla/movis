@@ -1,6 +1,6 @@
-import {create} from "zustand/react";
+import {create} from "zustand";
 import type {Movie, Showtime} from "@/types/movie.ts";
-import {persist} from "zustand/middleware/persist";
+import {persist} from "zustand/middleware";
 
 const startTimes = ['14:00', '17:30', '21:00'];
 

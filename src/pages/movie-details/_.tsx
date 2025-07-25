@@ -1,4 +1,4 @@
-export const path = '/movie/:movieName';
+export const path = '/movie/:id';
 
 export const title = 'Movie Details';
 

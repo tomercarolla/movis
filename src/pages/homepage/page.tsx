@@ -1,11 +1,12 @@
 import {Loader} from "@/components";
 import {MovieCard} from "@/pages/homepage/components/MovieCard.tsx";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useMovies} from "@/api/movies.ts";
 import type {Genre, Movie} from "@/types/movie";
 import {ratingRanges, RatingSelectFilter} from "@/pages/homepage/components/RatingSelectFilter.tsx";
 import {GenresMultiSelectFilter} from "@/pages/homepage/components/GenresMultiSelectFilter.tsx";
 import {AutoComplete} from "@/components/autocomplete/AutoComplete.tsx";
+import {useMovieStore} from "@/store";
 
 export default function Component() {
     const {data: movies, isLoading, error} = useMovies();
@@ -13,6 +14,14 @@ export default function Component() {
     const [genresFilter, setGenresFilter] = useState<Genre[]>([]);
     const [searchValue, setSearchValue] = useState<string>("");
     const [_, setSelectedValue] = useState<string>("");
+
+    const setMovies = useMovieStore((state) => state.setMovies);
+
+    useEffect(() => {
+        if (movies) {
+            setMovies(movies);
+        }
+    }, [movies, setMovies]);
 
     const filterByRating = (movie: Movie, ratingFilter: string) =>
         ratingRanges[ratingFilter]?.(movie.vote_average) ?? true;
@@ -54,8 +63,8 @@ export default function Component() {
                     isLoading={isLoading}
                     emptyMessage="No movies found."
                 />
-                <GenresMultiSelectFilter setSelectedGenres={setGenresFilter} selectedGenres={genresFilter} />
-                <RatingSelectFilter setRatingFilter={setRatingFilter} />
+                <GenresMultiSelectFilter setSelectedGenres={setGenresFilter} selectedGenres={genresFilter}/>
+                <RatingSelectFilter setRatingFilter={setRatingFilter}/>
             </section>
 
             {filteredMovies?.length === 0 ? (
@@ -63,9 +72,7 @@ export default function Component() {
             ) : (
                 <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 px-2 sm:px-0">
                     {filteredMovies?.map((movie) => (
-                        <li key={movie.id} className="bg-gray-800 text-white p-4 rounded flex flex-col">
-                            <MovieCard movie={movie}/>
-                        </li>
+                        <MovieCard key={movie.id} movie={movie}/>
                     ))}
                 </ul>
             )}

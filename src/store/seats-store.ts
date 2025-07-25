@@ -1,5 +1,5 @@
-import {create} from "zustand/react";
-import {persist} from "zustand/middleware/persist";
+import {create} from "zustand";
+import {persist} from "zustand/middleware";
 
 const TOTAL_SEATS = 20;
 
