@@ -4,7 +4,7 @@ import {useCallback, useMemo} from "react";
 import {useSeatsStore} from "@/store";
 import {SeatRows} from "@/pages/movie-details/components/seat-map/SeatRows.tsx";
 import {tss} from "tss-react";
-import type { Showtime } from "@/types/movie";
+import type {Movie, Showtime} from "@/types/movie";
 
 const seats = Array.from({length: TOTAL_SEATS}, (_, i) => i + 1);
 const seatsPerRow = 8;
@@ -12,16 +12,15 @@ const totalRows = TOTAL_SEATS / seatsPerRow;
 const rows = Array.from({length: totalRows}, (_, i) => i + 1);
 
 type SeatMapProps = {
-    movieId: number;
+    movie: Movie;
     selectedDate: string;
     selectedTime: string;
     showTimes: Showtime[];
 };
 
-export function SeatMap({movieId, selectedDate, selectedTime, showTimes}: SeatMapProps) {
-    const {setSelectedSeats} = useSeatsStore();
+export function SeatMap({movie, selectedDate, selectedTime, showTimes}: SeatMapProps) {
     const selectedSeatsMap = useSeatsStore((s) => s.selectedSeats);
-
+    const movieId = movie.id;
     const {classes} = useStyles();
 
     const theaterId = useMemo(() => {
@@ -47,16 +46,27 @@ export function SeatMap({movieId, selectedDate, selectedTime, showTimes}: SeatMa
     const toggleSelectedSeat = useCallback(
         (seat: number) => {
             if (!key) return;
-            const isSelected = selectedSeats.includes(seat);
-            const updated = isSelected
-                ? selectedSeats.filter((s) => s !== seat)
-                : [...selectedSeats, seat];
-            setSelectedSeats(key, updated);
+
+            useSeatsStore.setState((state) => {
+                const current = state.selectedSeats[key] || [];
+                const updated = current.includes(seat)
+                    ? current.filter((s) => s !== seat)
+                    : [...current, seat];
+
+                return {
+                    selectedSeats: {
+                        ...state.selectedSeats,
+                        [key]: updated,
+                    },
+                };
+            });
         },
-        [key, setSelectedSeats]
+        [key]
     );
 
     if (!theaterId || !key) return null;
+
+    console.log('selectedSeats ', selectedSeats)
 
     if (isSoldOut) {
         return (
@@ -82,6 +92,15 @@ export function SeatMap({movieId, selectedDate, selectedTime, showTimes}: SeatMa
                 }}
                 availableCount={availableCount}
             />
+
+            <div>
+                <p>Ticket Summary:</p>
+                <p>Date: {selectedDate || 'Not selected'}</p>
+                <p>Time: {selectedTime || 'Not selected'}</p>
+                <p>Movie: {movie.title}</p>
+                <p>Selected seats: {selectedSeats.length > 0 ? selectedSeats.join(", ") : "None"}</p>
+                <p>Total price: ${selectedSeats.length * 10}</p>
+            </div>
         </div>
     )
 }

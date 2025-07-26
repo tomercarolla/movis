@@ -45,7 +45,7 @@ export function BookTickets({movie}: BookTicketsProps) {
 
             {selectedDate && selectedTime && (
                 <SeatMap
-                    movieId={movie.id}
+                    movie={movie}
                     showTimes={showTimes}
                     selectedDate={selectedDate}
                     selectedTime={selectedTime}
