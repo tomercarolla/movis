@@ -25,7 +25,7 @@ export function BookTickets({ movie }: BookTicketsProps) {
     <>
       <div className="flex flex-col sm:flex-row gap-4 mb-10">
         <Select
-          className="max-w-fit w-full"
+          className="max-w-fit"
           value={selectedDate || ''}
           options={weekDates}
           onChange={handleSelectDate}
