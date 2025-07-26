@@ -23,6 +23,10 @@ npm install
 
 ### 3. Start the Development Server
 
+- **API Key**: You need a valid API key from [The Movie Database (TMDB)](https://www.themoviedb.org/documentation/api).
+  Set it in your environment variables as `VITE_TMDB_API_KEY`. Duplicate the `.env.example` file and rename it to
+  `.env`, then add your TMDB API key.
+
 ```bash
 npm run dev
 ```
