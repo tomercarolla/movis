@@ -4,11 +4,15 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { globalIgnores } from 'eslint/config'
+import unusedImports from 'eslint-plugin-unused-imports';
 
 export default tseslint.config([
   globalIgnores(['dist']),
   {
     files: ['**/*.{ts,tsx}'],
+    plugins: {
+      'unused-imports': unusedImports,
+    },
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
