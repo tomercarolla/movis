@@ -1,5 +1,5 @@
 import {useSeatsStore} from "@/store";
-import {useEffect, useState} from "react";
+import {useEffect, useRef} from "react";
 
 export const TOTAL_SEATS = 64;
 
@@ -23,41 +23,28 @@ function generateRandomOccupiedSeats(): number[] {
 }
 
 export function useSeatAvailability(key: string) {
-    const {
-        soldOutShows,
-        occupiedSeats,
-        setOccupiedSeats,
-        markShowAsSoldOut,
-    } = useSeatsStore((state) => ({
-        soldOutShows: state.soldOutShows,
-        occupiedSeats: state.occupiedSeats,
-        setOccupiedSeats: state.setOccupiedSeats,
-        markShowAsSoldOut: state.markShowAsSoldOut,
-    }));
+    const occupied = useSeatsStore((s) => s.occupiedSeats[key] || []);
+    const setOccupiedSeats = useSeatsStore((s) => s.setOccupiedSeats);
 
-    const [generated, setGenerated] = useState(false);
+    const hasGeneratedRef = useRef(false);
 
     useEffect(() => {
-        if (!occupiedSeats[key] && !generated) {
+        if (!key || hasGeneratedRef.current) return;
+
+        if (occupied.length === 0) {
             const seats = generateRandomOccupiedSeats();
-
             setOccupiedSeats(key, seats);
-
-            if (seats.length === TOTAL_SEATS) {
-                markShowAsSoldOut(key);
-            }
-
-            setGenerated(true);
         }
-    }, [key, occupiedSeats, generated, setOccupiedSeats, markShowAsSoldOut]);
 
-    const occupied = occupiedSeats[key];
-    const occupiedCount = occupied?.length ?? 0;
-    const isSoldOut = soldOutShows.includes(key) || occupiedCount === TOTAL_SEATS;
+        hasGeneratedRef.current = true;
+    }, [key, occupied.length, setOccupiedSeats]);
+
+    const isSoldOut = occupied.length === TOTAL_SEATS;
 
     return {
         isSoldOut,
-        occupiedCount: occupied?.length ?? 0,
-        availableCount: TOTAL_SEATS - (occupied?.length ?? 0)
+        occupiedCount: occupied.length,
+        availableCount: TOTAL_SEATS - occupied.length,
+        occupiedSeats: occupied,
     };
 }
