@@ -39,7 +39,9 @@ export function SeatRows({
 
                         return (
                             <span
+                                key={seat}
                                 tabIndex={0}
+                                aria-label={isOccupied ? "Occupied seat" : "Available seat"}
                                 className={`${classes.seat} ${isSelected ? 'selected' : ''} ${isOccupied ? 'occupied' : ''}`}
                                 onClick={() => !isOccupied && toggleSelectedSeat(seat)}
                                 onKeyDown={(e) => {
@@ -161,7 +163,6 @@ const useStyles = tss.create({
         },
         ['&:not(.occupied):hover, &:not(.occupied):focus']: {
             cursor: 'pointer',
-            background: 'var(--seat-hover-color)',
             transform: 'scale(1.2)',
         },
     }

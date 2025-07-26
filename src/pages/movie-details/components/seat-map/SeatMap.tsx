@@ -1,9 +1,10 @@
 import {Screen} from "@/pages/movie-details/components/seat-map/Screen.tsx";
 import {TOTAL_SEATS, useSeatAvailability} from "@/pages/movie-details/seats-hook.ts";
 import {useCallback, useMemo} from "react";
-import {useScheduleStore, useSeatsStore} from "@/store";
+import {useSeatsStore} from "@/store";
 import {SeatRows} from "@/pages/movie-details/components/seat-map/SeatRows.tsx";
 import {tss} from "tss-react";
+import type { Showtime } from "@/types/movie";
 
 const seats = Array.from({length: TOTAL_SEATS}, (_, i) => i + 1);
 const seatsPerRow = 8;
@@ -12,48 +13,50 @@ const rows = Array.from({length: totalRows}, (_, i) => i + 1);
 
 type SeatMapProps = {
     movieId: number;
+    selectedDate: string;
+    selectedTime: string;
+    showTimes: Showtime[];
 };
 
-export function SeatMap({movieId}: SeatMapProps) {
-    const {selectedDate, selectedTime, schedule} = useScheduleStore();
-    const {getSelectedSeats, setSelectedSeats} = useSeatsStore();
+export function SeatMap({movieId, selectedDate, selectedTime, showTimes}: SeatMapProps) {
+    const {setSelectedSeats} = useSeatsStore();
+    const selectedSeatsMap = useSeatsStore((s) => s.selectedSeats);
 
     const {classes} = useStyles();
 
     const theaterId = useMemo(() => {
-        if (!selectedDate || !selectedTime) return null;
-        return schedule.find(
-            (s) => s.movieId === movieId && s.date === selectedDate && s.time === selectedTime
-        )?.theaterId ?? null;
-    }, [schedule, movieId, selectedDate, selectedTime]);
+        return (
+            showTimes.find(
+                (s) =>
+                    s.movieId === movieId &&
+                    s.date === selectedDate &&
+                    s.time === selectedTime
+            )?.theaterId ?? null
+        );
+    }, [showTimes, movieId, selectedDate, selectedTime]);
 
     const key = useMemo(() => {
         if (!theaterId) return null;
-
         return `${movieId}-${selectedDate}-${selectedTime}-${theaterId}`;
     }, [movieId, selectedDate, selectedTime, theaterId]);
 
     const {isSoldOut, availableCount, occupiedSeats} = useSeatAvailability(key || '');
 
-    const selectedSeats = useMemo(() => (key ? getSelectedSeats(key) : []), [key, getSelectedSeats]);
+    const selectedSeats = key ? selectedSeatsMap[key] || [] : [];
 
     const toggleSelectedSeat = useCallback(
         (seat: number) => {
             if (!key) return;
-
             const isSelected = selectedSeats.includes(seat);
             const updated = isSelected
-                ? selectedSeats.filter(s => s !== seat)
+                ? selectedSeats.filter((s) => s !== seat)
                 : [...selectedSeats, seat];
-
             setSelectedSeats(key, updated);
         },
-        [key, selectedSeats, setSelectedSeats]
+        [key, setSelectedSeats]
     );
 
-    if (!selectedDate || !selectedTime || !theaterId || !key) {
-        return null;
-    }
+    if (!theaterId || !key) return null;
 
     if (isSoldOut) {
         return (

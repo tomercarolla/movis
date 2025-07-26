@@ -26,23 +26,21 @@ export function useSeatAvailability(key: string) {
     const occupied = useSeatsStore((s) => s.occupiedSeats[key] || []);
     const setOccupiedSeats = useSeatsStore((s) => s.setOccupiedSeats);
 
-    const hasGeneratedRef = useRef(false);
+    const generatedKeysRef = useRef<Set<string>>(new Set());
 
     useEffect(() => {
-        if (!key || hasGeneratedRef.current) return;
+        if (!key || generatedKeysRef.current.has(key)) return;
 
         if (occupied.length === 0) {
             const seats = generateRandomOccupiedSeats();
             setOccupiedSeats(key, seats);
         }
 
-        hasGeneratedRef.current = true;
+        generatedKeysRef.current.add(key);
     }, [key, occupied.length, setOccupiedSeats]);
 
-    const isSoldOut = occupied.length === TOTAL_SEATS;
-
     return {
-        isSoldOut,
+        isSoldOut: occupied.length === TOTAL_SEATS,
         occupiedCount: occupied.length,
         availableCount: TOTAL_SEATS - occupied.length,
         occupiedSeats: occupied,

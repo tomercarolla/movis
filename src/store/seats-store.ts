@@ -13,36 +13,29 @@ type SeatsStore = {
 }
 
 export const useSeatsStore = create<SeatsStore>()(
-    persist((set, get) => ({
+    persist(
+        (set, get) => ({
             occupiedSeats: {},
             selectedSeats: {},
 
-            setOccupiedSeats: (key, seats) => {
+            setOccupiedSeats: (key, seats) =>
                 set((state) => ({
-                    occupiedSeats: {
-                        ...state.occupiedSeats,
-                        [key]: seats,
-                    },
-                }));
-            },
+                    occupiedSeats: { ...state.occupiedSeats, [key]: seats },
+                })),
 
-            setSelectedSeats: (key, seats) => {
+            setSelectedSeats: (key, seats) =>
                 set((state) => ({
-                    selectedSeats: {
-                        ...state.selectedSeats,
-                        [key]: seats,
-                    },
-                }))
-            },
+                    selectedSeats: { ...state.selectedSeats, [key]: seats },
+                })),
 
             getSelectedSeats: (key) => get().selectedSeats[key] || [],
         }),
         {
-            name: 'seats-storage',
+            name: "seats-store",
             partialize: (state) => ({
                 occupiedSeats: state.occupiedSeats,
-                selectedSeats: state.selectedSeats
-            })
+                selectedSeats: state.selectedSeats,
+            }),
         }
     )
 )
