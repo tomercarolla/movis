@@ -1,7 +1,7 @@
 import {useSeatsStore} from "@/store";
 import {useEffect, useState} from "react";
 
-const TOTAL_SEATS = 20;
+export const TOTAL_SEATS = 64;
 
 function generateRandomOccupiedSeats(): number[] {
     const shouldBeSoldOut = Math.random() < 0.2; // 20% chance to be sold out
@@ -52,13 +52,12 @@ export function useSeatAvailability(key: string) {
     }, [key, occupiedSeats, generated, setOccupiedSeats, markShowAsSoldOut]);
 
     const occupied = occupiedSeats[key];
-    const isSoldOut = soldOutShows.includes(key) || occupied?.length === TOTAL_SEATS;
+    const occupiedCount = occupied?.length ?? 0;
+    const isSoldOut = soldOutShows.includes(key) || occupiedCount === TOTAL_SEATS;
 
     return {
         isSoldOut,
         occupiedCount: occupied?.length ?? 0,
-        availableCount: TOTAL_SEATS - (occupied?.length ?? 0),
-        occupiedSeats: occupied ?? []
-    }
-
+        availableCount: TOTAL_SEATS - (occupied?.length ?? 0)
+    };
 }

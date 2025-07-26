@@ -10,7 +10,7 @@ type ScheduleStore = {
 
     setSchedule: (s: Showtime[]) => void;
     setWeekDates: (d: WeekdayDate[]) => void;
-    selectDate: (date: string) => void;
+    selectDate: (date: string | null) => void;
     selectTime: (time: string) => void;
 }
 

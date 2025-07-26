@@ -27,11 +27,12 @@ export default function Component() {
                         <h1 className="text-2xl font-semibold">{title} ({year})</h1>
                         <p className="max-w-150 mt-4 text-sm leading-relaxed text-foreground/90">{overview}</p>
                     </div>
+
                     <div className="mt-1 text-sm text-muted-foreground">
                         <p>Rating: {rating.toFixed(1)}</p>
                         <p>Duration: {`${duration} min`}</p>
 
-                        <ul className='flex gap-2 align-items-center flex-wrap mt-2'>
+                        <ul className='flex gap-2 text-foreground align-items-center flex-wrap mt-2'>
                             {genres.map(({id, name}) => (
                                 <li key={id} className="inline-block bg-gray-200 px-2 py-1 rounded">
                                     {name}
@@ -44,7 +45,20 @@ export default function Component() {
 
             <Separator className="my-6"/>
 
-            <BookTickets movie={movie} />
+            <div>
+                Available Theaters:
+                <ul className='flex gap-2 align-items-center flex-wrap mt-2'>
+                    {movie.theaters.map(({id, name}) => (
+                        <li key={id} className="inline-block bg-gray-200 px-2 py-1 rounded">
+                            {name}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
+            <Separator className="my-6"/>
+
+            <BookTickets movie={movie}/>
         </div>
     );
 }

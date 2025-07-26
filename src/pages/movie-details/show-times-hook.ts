@@ -23,7 +23,7 @@ function generateShowTimes(movies: Movie[], weekDates: WeekdayDate[]): Showtime[
     const occupied = new Map<string, boolean>();
     const all: Showtime[] = [];
 
-    weekDates.forEach(({label}) => {
+    weekDates.forEach(({label, value}) => {
         startTimes.forEach((time) => {
             movies.forEach((movie) => {
                 const freeTheaters: Theater[] = movie.theaters.filter((theater) => {
@@ -41,7 +41,7 @@ function generateShowTimes(movies: Movie[], weekDates: WeekdayDate[]): Showtime[
                     all.push({
                         movieId: movie.id,
                         theaterId: chosenTheater.id,
-                        date: label,
+                        date: value,
                         time
                     });
                 }
