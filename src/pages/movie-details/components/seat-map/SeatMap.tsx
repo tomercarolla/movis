@@ -77,6 +77,7 @@ export function SeatMap({movie, selectedDate, selectedTime, showTimes}: SeatMapP
     return (
         <div className={classes.cinema}>
             <Screen/>
+
             <SeatRows
                 rows={rows}
                 seats={seats}
