@@ -7,6 +7,7 @@ import {ratingRanges, RatingSelectFilter} from "@/pages/homepage/components/Rati
 import {GenresMultiSelectFilter} from "@/pages/homepage/components/GenresMultiSelectFilter.tsx";
 import {AutoComplete} from "@/components/autocomplete/AutoComplete.tsx";
 import {useMovieStore} from "@/store";
+import {useDebouncedValue} from "@/utils";
 
 export default function Component() {
     const {data: movies, isLoading, error} = useMovies();
@@ -14,6 +15,7 @@ export default function Component() {
     const [genresFilter, setGenresFilter] = useState<Genre[]>([]);
     const [searchValue, setSearchValue] = useState<string>("");
     const [_, setSelectedValue] = useState<string>("");
+    const debouncedSearchValue = useDebouncedValue(searchValue, 300);
 
     const setMovies = useMovieStore((state) => state.setMovies);
 
@@ -38,7 +40,7 @@ export default function Component() {
     }
 
     const filteredMovies = movies?.filter((movie) =>
-        searchMovie(movie, searchValue) && filterByRating(movie, ratingFilter) && filterByGenres(movie, genresFilter)
+        searchMovie(movie, debouncedSearchValue) && filterByRating(movie, ratingFilter) && filterByGenres(movie, genresFilter)
     );
 
     const moviesTitles = useMemo(() => {
