@@ -66,8 +66,6 @@ export function SeatMap({movie, selectedDate, selectedTime, showTimes}: SeatMapP
 
     if (!theaterId || !key) return null;
 
-    console.log('selectedSeats ', selectedSeats)
-
     if (isSoldOut) {
         return (
             <div className="text-center text-destructive font-semibold my-6">

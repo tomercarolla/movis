@@ -1,1 +1,1 @@
-export * from './useDebounceValue.ts';
+export * from './hooks';
