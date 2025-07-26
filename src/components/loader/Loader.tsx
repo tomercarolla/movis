@@ -11,3 +11,12 @@ export function Loader() {
         </div>
     )
 }
+
+export function LoaderMovieDetails() {
+    return (
+        <div className="flex space-y-3 gap-4">
+            <Skeleton className="h-[250px] w-[250px] rounded-xl" />
+            <Skeleton className="h-[250px] w-[250px] rounded-xl" />
+        </div>
+    )
+}
